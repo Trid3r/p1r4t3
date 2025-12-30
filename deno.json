@@ -3,6 +3,7 @@
   "tasks": {
     "check": "deno fmt --check . && deno lint . && deno check",
     "dev": "deno run -A --watch=static/,routes/ dev.ts",
+    "dev-tunnel": "deno run -A --watch=static/,routes/ dev-tunnel.ts",
     "build": "deno run -A dev.ts build",
     "start": "deno serve -A _fresh/server.js",
     "update": "deno run -A -r jsr:@fresh/update ."
@@ -19,6 +20,7 @@
     "**/_fresh/*"
   ],
   "imports": {
+    "@hongminhee/localtunnel": "jsr:@hongminhee/localtunnel@^0.3.0",
     "fresh": "jsr:@fresh/core@^2.0.0-alpha.60",
     "preact": "npm:preact@^10.27.1",
     "@preact/signals": "npm:@preact/signals@^2.3.1",

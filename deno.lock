@@ -5,6 +5,8 @@
     "jsr:@deno/loader@~0.3.3": "0.3.5",
     "jsr:@fresh/build-id@1": "1.0.1",
     "jsr:@fresh/core@^2.0.0-alpha.60": "2.0.0-alpha.60",
+    "jsr:@hongminhee/localtunnel@0.3": "0.3.0",
+    "jsr:@logtape/logtape@^1.0.4": "1.3.5",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/encoding@1": "1.0.10",
     "jsr:@std/encoding@^1.0.10": "1.0.10",
@@ -13,6 +15,7 @@
     "jsr:@std/html@1": "1.0.4",
     "jsr:@std/http@^1.0.15": "1.0.20",
     "jsr:@std/internal@^1.0.10": "1.0.10",
+    "jsr:@std/json@^1.0.2": "1.0.2",
     "jsr:@std/jsonc@1": "1.0.2",
     "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/path@1": "1.1.2",
@@ -20,9 +23,11 @@
     "jsr:@std/semver@1": "1.0.5",
     "jsr:@std/uuid@^1.0.7": "1.0.9",
     "npm:@opentelemetry/api@^1.9.0": "1.9.0",
+    "npm:@preact/signals@^2.2.1": "2.3.1_preact@10.27.1",
     "npm:@preact/signals@^2.3.1": "2.3.1_preact@10.27.1",
     "npm:esbuild-wasm@0.25.7": "0.25.7",
     "npm:esbuild@0.25.7": "0.25.7",
+    "npm:esbuild@~0.25.5": "0.25.7",
     "npm:gl-matrix@^3.4.3": "3.4.4",
     "npm:preact-render-to-string@^6.5.11": "6.5.13_preact@10.27.1",
     "npm:preact@^10.27.0": "10.27.1",
@@ -33,7 +38,8 @@
       "integrity": "04ddd0fca9416d8a2866263928a53b9d5ed08dfca064d64504a0aaf9800c709e",
       "dependencies": [
         "jsr:@deno/loader",
-        "jsr:@std/path@^1.1.1"
+        "jsr:@std/path@^1.1.1",
+        "npm:esbuild@~0.25.5"
       ]
     },
     "@deno/loader@0.3.5": {
@@ -61,11 +67,21 @@
         "jsr:@std/semver",
         "jsr:@std/uuid",
         "npm:@opentelemetry/api",
-        "npm:esbuild",
+        "npm:@preact/signals@^2.2.1",
         "npm:esbuild-wasm",
+        "npm:esbuild@0.25.7",
         "npm:preact-render-to-string",
         "npm:preact@^10.27.0"
       ]
+    },
+    "@hongminhee/localtunnel@0.3.0": {
+      "integrity": "4ad858acd963b5fad45b188d54cf751ac8fbe0aae495e1d3ce607e3730270ff4",
+      "dependencies": [
+        "jsr:@logtape/logtape"
+      ]
+    },
+    "@logtape/logtape@1.3.5": {
+      "integrity": "a5cdb130daf1a9d384006b0f850cc4443bfc2e163dadc6fa667875e79770beb3"
     },
     "@std/bytes@1.0.6": {
       "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
@@ -94,8 +110,14 @@
     "@std/internal@1.0.10": {
       "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
     },
+    "@std/json@1.0.2": {
+      "integrity": "d9e5497801c15fb679f55a2c01c7794ad7a5dfda4dd1bebab5e409cb5e0d34d4"
+    },
     "@std/jsonc@1.0.2": {
-      "integrity": "909605dae3af22bd75b1cbda8d64a32cf1fd2cf6efa3f9e224aba6d22c0f44c7"
+      "integrity": "909605dae3af22bd75b1cbda8d64a32cf1fd2cf6efa3f9e224aba6d22c0f44c7",
+      "dependencies": [
+        "jsr:@std/json"
+      ]
     },
     "@std/media-types@1.1.0": {
       "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
@@ -313,6 +335,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@fresh/core@^2.0.0-alpha.60",
+      "jsr:@hongminhee/localtunnel@0.3",
       "npm:@preact/signals@^2.3.1",
       "npm:gl-matrix@^3.4.3",
       "npm:preact@^10.27.1"
