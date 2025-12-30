@@ -27,7 +27,7 @@ if (Deno.args.includes("build")) {
   try {
     const tunnel = await openTunnel({ port: 8000 });
     console.log("\n🌐 Tunnel URL: %c%s", "color: blue; font-weight: bold;", tunnel.url.href);
-    console.log("📱 Scan the QR code or copy the URL to your Android device\n");
+    Deno.env.set("TUNNEL_URL", tunnel.url.href);
     
     // Graceful shutdown
     for (const sig of ["SIGINT", "SIGTERM"]) {

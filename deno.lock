@@ -332,6 +332,15 @@
       "integrity": "sha512-V79raXEWch/rbqoNc7nT9E4ep7lu+mI3+sBmfRD4i1M73R3WLYcCtdI0ibxGVf4eQL8ZIz2nFacqEC+rmnOORQ=="
     }
   },
+  "redirects": {
+    "https://deno.land/x/qrcode/mod.ts": "https://deno.land/x/qrcode@v2.0.0/mod.ts"
+  },
+  "remote": {
+    "https://deno.land/x/qrcode@v2.0.0/mod.ts": "3e693e8190d5fb4c6ab68a14a1a9473c325d5244fd83240b49cdecdf5fc18a1b",
+    "https://deno.land/x/qrcode@v2.0.0/qrcode.js": "138f870978e21843f48d8b0855b69de6ebf430c3ab9f57c3fa2746d6fba45bf1",
+    "https://esm.sh/qrcode-terminal@0.12.0": "f919c60f1ddb2e972b9184aa391797fb809199d3f36ce10698cbe57e62d4a082",
+    "https://esm.sh/qrcode-terminal@0.12.0/denonext/qrcode-terminal.mjs": "50088ca67dc7bedbea0b5056ef626ad84050e37ef30f01a2316cca4275a5ef5d"
+  },
   "workspace": {
     "dependencies": [
       "jsr:@fresh/core@^2.0.0-alpha.60",
