@@ -142,3 +142,25 @@ html {
     rgb(254, 249, 195)
   );
 }
+
+
+/* Dark/Light mode gradients */
+.dark-gradient {
+  background-color: rgb(17, 24, 39); /* gray-900 */
+  background-image: linear-gradient(
+    to right bottom,
+    rgb(30, 41, 59), /* slate-800 */
+    rgb(15, 23, 42), /* slate-900 */
+    rgb(2, 6, 23)    /* slate-950 */
+  );
+}
+
+.light-gradient {
+  background-color: rgb(134, 239, 172);
+  background-image: linear-gradient(
+    to right bottom,
+    rgb(219, 234, 254),
+    rgb(187, 247, 208),
+    rgb(254, 249, 195)
+  );
+}
