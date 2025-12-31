@@ -2,12 +2,12 @@ import { useEffect, useRef } from "preact/hooks";
 import { mat4, vec3 } from "gl-matrix";
 import type { Theme } from "./App.tsx";
 
-interface BoatCanvasProps {
+interface CanvasProps {
   device: GPUDevice;
   theme: Theme;
 }
 
-// --- WGSL Shaders (Unchanged) ---
+// --- WGSL Shaders ---
 const shaderCode = `
 struct Uniforms {
   modelViewProjectionMatrix : mat4x4<f32>,
@@ -44,7 +44,7 @@ fn fs_main(@location(0) vColor : vec4<f32>, @location(1) vNormal : vec3<f32>) ->
 }
 `;
 
-// --- Geometry Generation Helper (Unchanged) ---
+// --- Geometry Generation Helper ---
 function createBox(
   x: number, y: number, z: number, 
   w: number, h: number, d: number, 
@@ -112,7 +112,7 @@ function adjustBrightness(color: [number, number, number], factor: number): [num
   ];
 }
 
-export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
+export default function Canvas({ device, theme }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   // Camera State 
@@ -143,6 +143,7 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
 
     // Base colors (daytime brightness)
     const baseColors = {
+      water: [0.1, 0.5, 0.8] as [number, number, number],
       hull: [0.2, 0.4, 0.8] as [number, number, number],
       cabin: [0.9, 0.9, 0.9] as [number, number, number],
       roof: [0.2, 0.4, 0.8] as [number, number, number],
@@ -153,6 +154,7 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
     // Dark mode = night (darker), Light mode = day (bright)
     const brightnessFactor = theme === "dark" ? 0.35 : 1.0;
     const adjustedColors = {
+      water: adjustBrightness(baseColors.water, brightnessFactor * 0.8), // Slightly darker water
       hull: adjustBrightness(baseColors.hull, brightnessFactor),
       cabin: adjustBrightness(baseColors.cabin, brightnessFactor),
       roof: adjustBrightness(baseColors.roof, brightnessFactor),
@@ -161,7 +163,11 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
     };
 
     // 1. Prepare Geometry with theme-based colors
-    const vertexData = new Float32Array([
+    // Water plane (drawn first, below boat)
+    const waterGeometry = createBox(0, -3.0, 0, 30.0, 0.1, 30.0, ...adjustedColors.water);
+    
+    // Boat geometry
+    const boatGeometry = [
       // Hull (Blue)
       ...createBox(0, -1.0, 0, 3.0, 1.2, 5.0, ...adjustedColors.hull),
       // Cabin Base (White)
@@ -172,6 +178,11 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
       ...createBox(0, 2.2, 0.0, 0.6, 1.2, 0.6, ...adjustedColors.chimney),
       // Front Box/Detail (Dark Blue)
       ...createBox(0, -0.2, 2.0, 1.5, 0.5, 1.5, ...adjustedColors.front),
+    ];
+
+    const vertexData = new Float32Array([
+      ...waterGeometry,
+      ...boatGeometry
     ]);
 
     const vertexBuffer = device.createBuffer({
@@ -367,7 +378,7 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
       const commandEncoder = device.createCommandEncoder();
       const textureView = context.getCurrentTexture().createView();
 
-      // TRANSPARENT BACKGROUND - always clear to transparent
+      // TRANSPARENT BACKGROUND
       const clearColor = { r: 0, g: 0, b: 0, a: 0 };
 
       const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -389,7 +400,14 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, bindGroup);
       passEncoder.setVertexBuffer(0, vertexBuffer);
-      passEncoder.draw(vertexData.length / 9);
+      
+      // Draw water (first 36 vertices) then boat (remaining vertices)
+      const waterVertexCount = 36; // 6 faces * 6 vertices per face for the water box
+      const boatVertexCount = vertexData.length / 9 - waterVertexCount;
+      
+      passEncoder.draw(waterVertexCount, 1, 0, 0);        // Draw water
+      passEncoder.draw(boatVertexCount, 1, waterVertexCount, 0); // Draw boat
+      
       passEncoder.end();
 
       device.queue.submit([commandEncoder.finish()]);
@@ -415,7 +433,7 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
     <div className="relative w-full h-screen touch-none">
       <canvas 
         ref={canvasRef} 
-        id="boat-canvas" 
+        id="canvas" 
         className="w-full h-full block cursor-move bg-transparent"
         width={window.innerWidth}
         height={window.innerHeight}

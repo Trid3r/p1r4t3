@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "preact/hooks";
-import BoatCanvas from "./BoatCanvas.tsx";
+import Canvas from "./Canvas.tsx";
 
 interface TunnelUrlResponse {
   url: string | null;
@@ -169,7 +169,7 @@ export default function App() {
   return (
     <div className={`min-h-screen ${themeClasses.container} transition-colors duration-300`}>
       <ThemeToggle />
-      {device && <BoatCanvas device={device} theme={theme} />}
+      {device && <Canvas device={device} theme={theme} />}
     </div>
   );
 }
