@@ -31,7 +31,8 @@
       "dom",
       "dom.asynciterable",
       "dom.iterable",
-      "deno.ns"
+      "deno.ns",
+      "webgpu"
     ],
     "jsx": "precompile",
     "jsxImportSource": "preact",
