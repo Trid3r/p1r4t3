@@ -162,9 +162,9 @@ export default function Canvas({ device, theme }: CanvasProps) {
       front: adjustBrightness(baseColors.front, brightnessFactor),
     };
 
-    // 1. Prepare Geometry with theme-based colors
     // Water plane (drawn first, below boat)
-    const waterGeometry = createBox(0, -3.0, 0, 30.0, 0.1, 30.0, ...adjustedColors.water);
+    const waterGeometry = createBox(0, -1.6, 0, 500.0, 0.1, 500.0, ...adjustedColors.water);
+
     
     // Boat geometry
     const boatGeometry = [
@@ -193,14 +193,14 @@ export default function Canvas({ device, theme }: CanvasProps) {
     new Float32Array(vertexBuffer.getMappedRange()).set(vertexData);
     vertexBuffer.unmap();
 
-    // 2. Uniform Buffer
+    // Uniform Buffer
     const uniformBufferSize = 64 + 64 + 16; 
     const uniformBuffer = device.createBuffer({
       size: uniformBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    // 3. Pipeline
+    // Pipeline
     const module = device.createShaderModule({ code: shaderCode });
     const pipeline = device.createRenderPipeline({
       layout: "auto",
@@ -330,7 +330,7 @@ export default function Canvas({ device, theme }: CanvasProps) {
     canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
     canvas.addEventListener("touchend", handleTouchEnd);
 
-    // 5. Render Loop
+    // Render Loop
     let animationFrameId: number;
     let startTime = performance.now();
 
