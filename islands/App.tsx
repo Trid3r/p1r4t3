@@ -104,16 +104,17 @@ export default function App() {
       : "bg-gray-100",
     gradient: theme === "dark"
       ? "dark-gradient"
-      : "light-gradient"
+      : "light-gradient",
+    iconColor: theme === "dark" ? "text-white" : "text-black",
   }), [theme]);
 
   const ThemeToggle = () => (
     <button
       onClick={toggleTheme}
-      class={`fixed top-4 right-4 px-3 py-2 rounded-md border-2 transition-all duration-200 z-50 ${themeClasses.button}`}
+      class={`fixed top-4 right-4 px-3 py-2 rounded-md border-2 transition-all duration-200 z-50 ${themeClasses.button} ${themeClasses.iconColor}`}
       aria-label={`Cambiar a modo ${theme === "dark" ? "claro" : "oscuro"}`}
     >
-      {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+      {theme === "dark" ? "☀️" : "🌙"}
     </button>
   );
 
