@@ -103,6 +103,15 @@ function createBox(
   return vertices;
 }
 
+// Helper to adjust color brightness
+function adjustBrightness(color: [number, number, number], factor: number): [number, number, number] {
+  return [
+    Math.min(1, color[0] * factor),
+    Math.min(1, color[1] * factor),
+    Math.min(1, color[2] * factor),
+  ];
+}
+
 export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -114,7 +123,7 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
     isDragging: false,
     lastX: 0,
     lastY: 0,
-    lastPinchDist: 0, // Added for mobile zoom
+    lastPinchDist: 0,
   });
 
   useEffect(() => {
@@ -132,18 +141,37 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
       alphaMode: "premultiplied",
     });
 
-    // 1. Prepare Geometry
+    // Base colors (daytime brightness)
+    const baseColors = {
+      hull: [0.2, 0.4, 0.8] as [number, number, number],
+      cabin: [0.9, 0.9, 0.9] as [number, number, number],
+      roof: [0.2, 0.4, 0.8] as [number, number, number],
+      chimney: [1.0, 0.8, 0.1] as [number, number, number],
+      front: [0.1, 0.2, 0.5] as [number, number, number],
+    };
+
+    // Dark mode = night (darker), Light mode = day (bright)
+    const brightnessFactor = theme === "dark" ? 0.35 : 1.0;
+    const adjustedColors = {
+      hull: adjustBrightness(baseColors.hull, brightnessFactor),
+      cabin: adjustBrightness(baseColors.cabin, brightnessFactor),
+      roof: adjustBrightness(baseColors.roof, brightnessFactor),
+      chimney: adjustBrightness(baseColors.chimney, brightnessFactor),
+      front: adjustBrightness(baseColors.front, brightnessFactor),
+    };
+
+    // 1. Prepare Geometry with theme-based colors
     const vertexData = new Float32Array([
       // Hull (Blue)
-      ...createBox(0, -1.0, 0, 3.0, 1.2, 5.0, 0.2, 0.4, 0.8),
+      ...createBox(0, -1.0, 0, 3.0, 1.2, 5.0, ...adjustedColors.hull),
       // Cabin Base (White)
-      ...createBox(0, 0.5, 0.5, 2.2, 1.8, 2.5, 0.9, 0.9, 0.9),
+      ...createBox(0, 0.5, 0.5, 2.2, 1.8, 2.5, ...adjustedColors.cabin),
       // Roof (Blue)
-      ...createBox(0, 1.5, 0.5, 2.4, 0.2, 2.8, 0.2, 0.4, 0.8),
+      ...createBox(0, 1.5, 0.5, 2.4, 0.2, 2.8, ...adjustedColors.roof),
       // Chimney (Yellow/Gold)
-      ...createBox(0, 2.2, 0.0, 0.6, 1.2, 0.6, 1.0, 0.8, 0.1),
+      ...createBox(0, 2.2, 0.0, 0.6, 1.2, 0.6, ...adjustedColors.chimney),
       // Front Box/Detail (Dark Blue)
-      ...createBox(0, -0.2, 2.0, 1.5, 0.5, 1.5, 0.1, 0.2, 0.5),
+      ...createBox(0, -0.2, 2.0, 1.5, 0.5, 1.5, ...adjustedColors.front),
     ]);
 
     const vertexBuffer = device.createBuffer({
@@ -238,15 +266,13 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
 
     // --- Input Handling: Touch (Mobile) ---
     const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault(); // Prevent scrolling while interacting
+      e.preventDefault();
       if (e.touches.length === 1) {
-        // Single touch = Rotate
         cameraState.current.isDragging = true;
         cameraState.current.lastX = e.touches[0].clientX;
         cameraState.current.lastY = e.touches[0].clientY;
       } else if (e.touches.length === 2) {
-        // Two touches = Zoom (Pinch)
-        cameraState.current.isDragging = false; // Stop rotating if we start pinching
+        cameraState.current.isDragging = false;
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         cameraState.current.lastPinchDist = Math.hypot(dx, dy);
@@ -256,7 +282,6 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
     const handleTouchMove = (e: TouchEvent) => {
       e.preventDefault();
       if (e.touches.length === 1 && cameraState.current.isDragging) {
-        // Rotate
         const touch = e.touches[0];
         const deltaX = touch.clientX - cameraState.current.lastX;
         const deltaY = touch.clientY - cameraState.current.lastY;
@@ -268,13 +293,12 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
         cameraState.current.lastX = touch.clientX;
         cameraState.current.lastY = touch.clientY;
       } else if (e.touches.length === 2) {
-        // Zoom
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         const dist = Math.hypot(dx, dy);
         
         const deltaDist = cameraState.current.lastPinchDist - dist;
-        cameraState.current.radius += deltaDist * 0.05; // Sensitivity
+        cameraState.current.radius += deltaDist * 0.05;
         cameraState.current.radius = Math.max(2, Math.min(50, cameraState.current.radius));
         
         cameraState.current.lastPinchDist = dist;
@@ -289,13 +313,11 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
     canvas.addEventListener("mousedown", handleMouseDown);
     globalThis.window.addEventListener("mouseup", handleMouseUp);
     globalThis.window.addEventListener("mousemove", handleMouseMove);
-    canvas.addEventListener("wheel", handleWheel, { passive: false }); // Passive false for preventDefault
+    canvas.addEventListener("wheel", handleWheel, { passive: false });
     
-    // Mobile Listeners
     canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
     canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
     canvas.addEventListener("touchend", handleTouchEnd);
-
 
     // 5. Render Loop
     let animationFrameId: number;
@@ -345,9 +367,8 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
       const commandEncoder = device.createCommandEncoder();
       const textureView = context.getCurrentTexture().createView();
 
-      const clearColor = theme === "dark" 
-        ? { r: 0.1, g: 0.15, b: 0.2, a: 1.0 } 
-        : { r: 0.9, g: 0.95, b: 1.0, a: 1.0 };
+      // TRANSPARENT BACKGROUND - always clear to transparent
+      const clearColor = { r: 0, g: 0, b: 0, a: 0 };
 
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [{
@@ -383,7 +404,6 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("wheel", handleWheel);
-      // Remove mobile listeners
       canvas.removeEventListener("touchstart", handleTouchStart);
       canvas.removeEventListener("touchmove", handleTouchMove);
       canvas.removeEventListener("touchend", handleTouchEnd);
@@ -396,21 +416,10 @@ export default function BoatCanvas({ device, theme }: BoatCanvasProps) {
       <canvas 
         ref={canvasRef} 
         id="boat-canvas" 
-        className="w-full h-full block cursor-move"
+        className="w-full h-full block cursor-move bg-transparent"
         width={window.innerWidth}
         height={window.innerHeight}
       />
-      <div className={`absolute bottom-8 left-8 p-4 rounded-lg pointer-events-none backdrop-blur-sm border ${
-        theme === "dark" 
-          ? "bg-gray-800/50 text-white border-gray-700" 
-          : "bg-white/50 text-gray-800 border-gray-200"
-      }`}>
-        <p className="font-bold text-sm">Controls:</p>
-        <ul className="text-xs list-disc ml-4 mt-1 space-y-1">
-          <li>Left Click / 1 Finger: Rotate</li>
-          <li>Scroll / 2 Fingers: Zoom</li>
-        </ul>
-      </div>
     </div>
   );
 }
